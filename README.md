@@ -1,163 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MSU Denver Future Students site (demo concept)
 
-## Getting Started
+A Next.js 16 site for future students, running on Pantheon and reading its content from a headless WordPress site on Pantheon. Built for a Pantheon sales engineering presentation. Not affiliated with MSU Denver.
 
-First, run the development server:
+## How it fits together
+
+- **WordPress on Pantheon** holds the content: each program is a post whose category is its area of study, and the newest post in the Notice category is the site-wide banner.
+- **Next.js on Pantheon** reads WordPress over the REST API and caches everything with `'use cache'` and surrogate keys.
+- **When an editor publishes,** the Next.js Webhook plugin on WordPress sends a webhook to `/api/revalidate`, which refreshes only the cached content that changed. No rebuild.
+- **Every pull request** gets its own Pantheon environment at `https://pr-NUMBER-SITE.pantheonsite.io`. The `Accessibility` workflow waits for that environment, runs axe against it, and fails the pull request on any serious or critical WCAG 2.1 AA issue.
+
+## Environment variables
+
+Set with Pantheon Secrets Manager (`--type=env --scope=web,ic`):
+
+- `WORDPRESS_API_URL`, for example `https://live-msud-cms.pantheonsite.io/wp-json/wp/v2`
+- `WEBHOOK_SECRET`, the same value as `NEXTJS_WEBHOOK_SECRET` on the WordPress site
+
+## Local development
 
 ```bash
+cp .env.local.example .env.local   # then fill in the two values
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
----
-
-## Next.js 16 Specific Features
-
-This template includes Next.js 16 with the following enhancements:
-
-### Features
-
-- Next.js 16.3.6 with Turbopack (default bundler)
-- React 19.3.0
-- TypeScript 5
-- Pantheon cache handler with auto-detection (GCS/file-based)
-- Minimal and unopinionated (no styling framework)
-- App Router architecture
-
-### Cache Handler
-
-This template includes `@pantheon-systems/nextjs-cache-handler` pre-configured with auto-detection:
-
-- **Production (Pantheon):** Uses Google Cloud Storage when `CACHE_BUCKET` environment variable is set
-- **Development (Local):** Uses file-based caching
-
-#### Configuration
-
-Next.js 16 introduces a dual cache handler system configured in `next.config.ts`:
-
-```typescript
-const nextConfig: NextConfig = {
-  // Required for Pantheon deployment
-  output: 'standalone',
-
-  // Transpile the cache handler package
-  transpilePackages: ['@pantheon-systems/nextjs-cache-handler'],
-
-  // Next.js 16 Cache Components
-  cacheComponents: true,
-
-  // Custom cache life profiles for 'use cache' directive
-  cacheLife: {
-    short: { stale: 30, revalidate: 60, expire: 300 },
-    blog: { stale: 60, revalidate: 300, expire: 3600 },
-  },
-
-  // Legacy cache handler (ISR, route handlers, fetch cache)
-  cacheHandler: path.resolve('./cacheHandler.ts'),
-
-  // Next.js 16 cache handlers for 'use cache' directive
-  cacheHandlers: {
-    default: path.resolve('./use-cache-handler.ts'),
-    remote: path.resolve('./use-cache-handler.ts'),
-  },
-
-  // Disable in-memory caching
-  cacheMaxMemorySize: 0,
-};
-```
-
-**Two Cache Handlers:**
-- `cacheHandler.ts`: Legacy handler for ISR, route handlers, and fetch cache
-- `use-cache-handler.ts`: Next.js 16 handler for the new `'use cache'` directive
-
-#### Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `CACHE_BUCKET` | GCS bucket name for cache storage | Required for production |
-| `OUTBOUND_PROXY_ENDPOINT` | Edge cache proxy endpoint | Optional |
-| `CACHE_DEBUG` | Enable debug logging (`true` or `1`) | Optional |
-
-#### Example .env
+## The accessibility check
 
 ```bash
-# Production (Pantheon)
-CACHE_BUCKET=your-gcs-bucket-name
-
-# Optional
-CACHE_DEBUG=true
-OUTBOUND_PROXY_ENDPOINT=https://your-edge-cache-endpoint
+cd a11y
+npm ci
+npx playwright install chromium
+BASE_URL=http://localhost:3000 npx playwright test
 ```
 
-### Migrating from Next.js 15
+## Releasing
 
-This template supports migration from Next.js 15 to 16:
-
-#### Turbopack (Default in v16)
-
-- **No webpack config:** Works out of the box with Turbopack
-- **Has webpack config:** Remove it or use `npm run build -- --webpack` to keep using Webpack
-- **Already using Turbopack in v15:** Seamless migration, no changes needed
-
-#### Key Changes in Next.js 16
-
-- Turbopack is now stable and default (was experimental in v15)
-- New cache system with explicit `use cache` directive
-- `cacheComponents` flag for new caching features
-- Improved performance and build times
-
-### Project Structure
-
-```
-nextjs-v16-upstream/
-├── app/
-│   ├── favicon.ico          # App favicon
-│   ├── globals.css          # Global styles with Tailwind
-│   ├── layout.tsx           # Root layout
-│   └── page.tsx             # Home page
-├── public/                  # Static SVG assets
-│   ├── file.svg
-│   ├── globe.svg
-│   ├── next.svg
-│   └── window.svg
-├── .gitignore               # Git ignore file
-├── cacheHandler.ts          # Legacy cache handler (ISR, route handlers, fetch)
-├── eslint.config.mjs        # ESLint configuration
-├── LICENSE                  # MIT License
-├── next-env.d.ts            # Next.js TypeScript declarations
-├── next.config.ts           # Next.js configuration with dual cache handlers
-├── package.json             # Dependencies
-├── postcss.config.mjs       # PostCSS configuration for Tailwind
-├── README.md                # This file
-├── tsconfig.json            # TypeScript configuration
-└── use-cache-handler.ts     # Next.js 16 'use cache' directive handler
-```
-
-### Additional Resources
-
-- [Next.js 16 Release Notes](https://nextjs.org/blog/next-16)
-- [Pantheon Cache Handler](https://github.com/pantheon-systems/nextjs-cache-handler)
-- [Turbopack Documentation](https://nextjs.org/docs/app/api-reference/turbopack)
-
-### Support
-
-For issues related to:
-- **Next.js:** [Next.js GitHub](https://github.com/vercel/next.js)
-- **Pantheon Cache Handler:** [pantheon-systems/nextjs-cache-handler](https://github.com/pantheon-systems/nextjs-cache-handler)
-- **Pantheon Platform:** [Pantheon Documentation](https://docs.pantheon.io)
+Merging to `main` deploys to Dev. Test and Live deploy from Git tags such as `pantheon_test_1` and `pantheon_live_1`, created on GitHub's Releases page.

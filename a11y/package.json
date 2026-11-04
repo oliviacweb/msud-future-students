@@ -1,0 +1,12 @@
+{
+  "name": "msud-future-students-a11y",
+  "private": true,
+  "description": "Accessibility check that runs against each pull request's Pantheon environment",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1"
+  }
+}
