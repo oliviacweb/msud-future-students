@@ -29,6 +29,14 @@ export default function HomePage() {
             >
               Find your program
             </Link>
+            <button type="button" className="rounded border p-2">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+                <path d="M3 12l9-9 9 9v9H3z" />
+              </svg>
+            </button>
+            <Link href="/summit-house" className="text-gray-300">
+              Book a Summit House tour
+            </Link>
           </div>
         </div>
       </section>
