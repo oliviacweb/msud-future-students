@@ -11,10 +11,9 @@ export const metadata: Metadata = {
   },
   description: 'A demo concept of a Future Students site. Not affiliated with MSU Denver.',
   robots: { index: false, follow: false },
-  // Lets the accessibility check confirm it is testing this app's latest build.
+  // Lets the accessibility check confirm it is testing this app.
   other: {
     'x-app': 'msud-future-students',
-    'x-build-time': process.env.BUILD_TIME ?? '0',
   },
 };
 

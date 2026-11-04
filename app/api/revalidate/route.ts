@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     const { secret, surrogate_keys } = body;
 
     if (!validateWebhookSecret(request, secret)) {
+      console.warn('[Revalidate] Rejected a webhook: its secret does not match WEBHOOK_SECRET');
       return NextResponse.json(
         { error: 'Unauthorized: Invalid webhook secret' },
         { status: 401 }

@@ -85,14 +85,20 @@ async function fetchPublishedPosts(): Promise<WPPost[]> {
 // ==================== Cached content ('use cache') ====================
 
 /**
- * Programs, areas and the latest notice, cached until WordPress says otherwise.
- * Infinite cacheLife: the cache refreshes only when the WordPress webhook plugin
- * revalidates one of these tags. Every publish sends post-list, so any change
- * in WordPress refreshes every page that uses this.
+ * Safety net, in seconds: how old content can get before a visit refreshes it in
+ * the background, in case a WordPress webhook never arrives. Publishing still
+ * refreshes content right away through the webhook.
+ */
+const SAFETY_NET_SECONDS = 10;
+
+/**
+ * Programs, areas and the latest notice. The cache refreshes the moment the
+ * WordPress webhook plugin revalidates one of these tags; every publish sends
+ * post-list, so any change in WordPress refreshes every page that uses this.
  */
 export async function getSiteContent(): Promise<SiteContent> {
   'use cache';
-  cacheLife({ stale: Infinity, revalidate: Infinity, expire: Infinity });
+  cacheLife({ stale: 30, revalidate: SAFETY_NET_SECONDS, expire: 3600 });
 
   const posts = await fetchPublishedPosts();
   cacheTag(...new Set(['post-list', ...posts.flatMap(surrogateKeys)]));

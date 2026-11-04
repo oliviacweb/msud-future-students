@@ -18,7 +18,7 @@ This is a **Next.js 16** app (App Router) with WordPress integration using `'use
 ### Key Differences from Next.js 15
 
 - **No `Surrogate-Key` headers in next.config** — cache tags are set programmatically via `cacheTag()` in `lib/wordpressService.ts`. The adapter (`experimental.adapterPath`) exposes these tags to the internal router, which sets surrogate keys on responses.
-- **No `export const revalidate`** — uses `'use cache'` directive with infinite `cacheLife` instead of ISR
+- **No `export const revalidate`** — uses the `'use cache'` directive with `cacheLife` instead of ISR
 - **No `export const dynamic`** — route segment config is incompatible with `cacheComponents: true`. Use client components for dynamic content.
 - **`revalidateTag()` requires two arguments** in Next.js 16: `revalidateTag(key, { expire: 0 })`
 - **`cacheComponents: true`** in next.config enables the `'use cache'` directive
@@ -37,7 +37,7 @@ In-memory cache disabled (`cacheMaxMemorySize: 0`). Auto-selects GCS vs file-bas
 
 - `lib/wordpressService.ts` fetches every published post from the WordPress REST API in one call
 - Posts in the `Notice` category become the site-wide banner (newest wins); every other post is a program, and its first category is its area of study
-- `getSiteContent()` is the `'use cache'` wrapper: infinite `cacheLife`, tagged `post-list` plus `post-{id}`, `post-{slug}` and `term-{id}` for every post
+- `getSiteContent()` is the `'use cache'` wrapper, tagged `post-list` plus `post-{id}`, `post-{slug}` and `term-{id}` for every post. The webhook refreshes it on publish; `cacheLife` also refreshes it in the background every 10 seconds as a safety net in case a webhook never arrives
 - `getProgram(slug)` reads from the same cached content
 - `components/ProgramFinder.tsx` is the client-side filter (toggle buttons with `aria-pressed` and a polite live region)
 - Types are in `lib/types.ts`
@@ -45,7 +45,7 @@ In-memory cache disabled (`cacheMaxMemorySize: 0`). Auto-selects GCS vs file-bas
 ### Accessibility check
 
 - `a11y/` is a separate package (Playwright + axe) so Pantheon's build never installs it; it is excluded from `tsconfig.json` and ESLint
-- `.github/workflows/a11y.yml` waits for the pull request's Pantheon environment (`pr-NUMBER-SITE.pantheonsite.io`) to serve a build newer than the commit, using the `x-build-time` meta tag that `next.config.mjs` stamps in, then runs axe on `/` and `/programs`
+- `.github/workflows/a11y.yml` serves sample WordPress content from `a11y/sample-wordpress.mjs`, builds and starts the pull request in GitHub Actions, then runs axe on `/` and `/programs`. It never calls the Pantheon environment, whose CDN can answer automated browsers with a bot challenge
 
 ### API Routes
 

@@ -7,7 +7,7 @@ A Next.js 16 site for future students, running on Pantheon and reading its conte
 - **WordPress on Pantheon** holds the content: each program is a post whose category is its area of study, and the newest post in the Notice category is the site-wide banner.
 - **Next.js on Pantheon** reads WordPress over the REST API and caches everything with `'use cache'` and surrogate keys.
 - **When an editor publishes,** the Next.js Webhook plugin on WordPress sends a webhook to `/api/revalidate`, which refreshes only the cached content that changed. No rebuild.
-- **Every pull request** gets its own Pantheon environment at `https://pr-NUMBER-SITE.pantheonsite.io`. The `Accessibility` workflow waits for that environment, runs axe against it, and fails the pull request on any serious or critical WCAG 2.1 AA issue.
+- **Every pull request** gets its own Pantheon environment at `https://pr-NUMBER-SITE.pantheonsite.io` for review. The `Accessibility` workflow builds the pull request in GitHub Actions with sample WordPress content, runs axe on it, and fails the pull request on any serious or critical WCAG 2.1 AA issue.
 
 ## Environment variables
 
@@ -26,12 +26,16 @@ npm run dev
 
 ## The accessibility check
 
+With the site running locally on port 3000:
+
 ```bash
 cd a11y
 npm ci
 npx playwright install chromium
 BASE_URL=http://localhost:3000 npx playwright test
 ```
+
+To build the site with the same sample content GitHub Actions uses, run `node a11y/sample-wordpress.mjs` and set `WORDPRESS_API_URL=http://127.0.0.1:8787/wp-json/wp/v2`.
 
 ## Releasing
 

@@ -14,11 +14,6 @@ const nextConfig = {
   },
 
   cacheMaxMemorySize: 0,
-
-  // Stamped into every page so the accessibility check can tell a fresh build from an old one.
-  env: {
-    BUILD_TIME: String(Math.floor(Date.now() / 1000)),
-  },
 };
 
 export default nextConfig;
