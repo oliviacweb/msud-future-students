@@ -27,7 +27,9 @@ export default function SummitHousePage() {
         ))}
       </ul>
 
-      <h2 className="mt-12 text-2xl font-bold text-navy">Tours</h2>
+      <h2 id="tours" className="mt-12 text-2xl font-bold text-navy">
+        Tours
+      </h2>
       <p className="mt-4 text-lg text-ink">Tour dates will be posted here as they open.</p>
     </div>
   );

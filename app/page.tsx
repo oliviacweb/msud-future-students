@@ -66,6 +66,12 @@ export default function HomePage() {
             >
               Learn about Summit House
             </Link>
+            <Link
+              href="/summit-house#tours"
+              className="inline-block rounded-md bg-navy px-5 py-3 font-bold text-white hover:bg-brand-red"
+            >
+              Book a Summit House tour
+            </Link>
           </div>
         </div>
       </section>
