@@ -34,7 +34,7 @@ export default function HomePage() {
                 <path d="M3 12l9-9 9 9v9H3z" />
               </svg>
             </button>
-            <Link href="/summit-house" className="text-gray-300">
+           <Link href="/summit-house" className="text-gray-300" tabIndex={-1}>
               Book a Summit House tour
             </Link>
           </div>
