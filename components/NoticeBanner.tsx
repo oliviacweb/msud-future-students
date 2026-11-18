@@ -4,6 +4,7 @@ import type { Notice } from '@/lib/types';
  * The site-wide announcement. Admissions publishes it in WordPress
  * (a post in the Notice category), and the newest one shows here.
  */
+//commented out text for test
 export default function NoticeBanner({ notice }: { notice: Notice }) {
   return (
     <section aria-label="Announcement" className="bg-brand-red text-white">
